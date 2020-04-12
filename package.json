@@ -1,0 +1,60 @@
+{
+  "name": "@kylejlin/tyson",
+  "version": "1.0.0",
+  "description": "A tool that generates a TypeScript file from your Jison grammar's semantic actions so you can typecheck those semantic actions.",
+  "main": "dist/index.js",
+  "bin": {
+    "tyson": "dist/cli.js"
+  },
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "start": "nodemon",
+    "prepublishOnly": "rm -rf dist && npm run build && npm test",
+    "build": "rm -rf test/tempIndexTest test/tempCliTest && ts-node ./bin/generatePackageVersionFile.ts && tsc --project tsconfig.production.json",
+    "test": "jest",
+    "doc": "typedoc --out docs src && cd docs && echo \"\" > .nojekyll"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kylejlin/tyson.git"
+  },
+  "keywords": [
+    "tyson",
+    "jison",
+    "typecheck",
+    "types",
+    "typescript",
+    "bison",
+    "yacc",
+    "parser",
+    "generator",
+    "lexer",
+    "flex",
+    "tokenizer",
+    "compiler"
+  ],
+  "author": "Kyle Lin",
+  "license": "MIT",
+  "homepage": "https://github.com/kylejlin/tyson#readme",
+  "devDependencies": {
+    "@types/jest": "^24.0.22",
+    "@types/node": "^12.12.7",
+    "@types/prettier": "^2.0.0",
+    "@types/rimraf": "^3.0.0",
+    "jest": "^24.9.0",
+    "nodemon": "^2.0.1",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^24.1.0",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.2"
+  },
+  "dependencies": {
+    "ebnf-parser": "^0.1.10",
+    "lex-parser": "0.1.0",
+    "prettier": "^2.0.4",
+    "rusty-ts": "^1.1.0"
+  }
+}

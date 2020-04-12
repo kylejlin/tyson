@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`failure cases: error for missingStartSymbol 1`] = `[Error: The grammar defined in /Users/kyle/tyson/test/fixtures/shouldFail/missingStartSymbol/missingStartSymbol.jison does not have a start symbol declared. Please declare one using \`%start <symbolName>\`.]`;
