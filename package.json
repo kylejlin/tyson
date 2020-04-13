@@ -15,7 +15,8 @@
     "prepublishOnly": "rm -rf dist && npm run build && npm test",
     "build": "rm -rf test/tempIndexTest test/tempCliTest && ts-node ./bin/generatePackageVersionFile.ts && tsc --project tsconfig.production.json",
     "test": "jest",
-    "doc": "typedoc --out docs src && cd docs && echo \"\" > .nojekyll"
+    "doc": "typedoc --out docs src && cd docs && echo \"\" > .nojekyll",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls"
   },
   "repository": {
     "type": "git",
@@ -44,6 +45,7 @@
     "@types/node": "^12.12.7",
     "@types/prettier": "^2.0.0",
     "@types/rimraf": "^3.0.0",
+    "coveralls": "^3.0.11",
     "jest": "^24.9.0",
     "nodemon": "^2.0.1",
     "rimraf": "^3.0.2",
