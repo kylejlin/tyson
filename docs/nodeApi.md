@@ -3,13 +3,13 @@
 ## Installation
 
 ```sh
-npm install --save @kylejlin/tyson
+npm install --save tyson
 ```
 
 ## Usage
 
 ```ts
-import { generateTypeScriptFile, TysonConfig } from '@kylejlin/tyson';
+import { generateTypeScriptFile, TysonConfig } from "tyson";
 
 const config: TysonConfig = {
     pathToBnfGrammarFile: /* ... */,

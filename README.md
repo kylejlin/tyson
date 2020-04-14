@@ -2,8 +2,8 @@
 
 [![Build Status](https://travis-ci.com/kylejlin/tyson.svg?branch=master)](https://travis-ci.com/kylejlin/tyson)
 [![Coverage Status](https://coveralls.io/repos/github/kylejlin/tyson/badge.svg?branch=master)](https://coveralls.io/github/kylejlin/tyson?branch=master)
-[![npm version](https://badge.fury.io/js/%40kylejlin%2Ftyson.svg)](https://www.npmjs.com/package/@kylejlin/tyson)
-[![Downloads](https://img.shields.io/npm/dm/%40kylejlin%2Ftyson.svg)](https://www.npmjs.com/package/@kylejlin/tyson)
+[![npm version](https://badge.fury.io/js/tyson.svg)](https://www.npmjs.com/package/tyson)
+[![Downloads](https://img.shields.io/npm/dm/tyson.svg)](https://www.npmjs.com/package/tyson)
 
 A tool that generates a TypeScript file from your Jison grammar's semantic actions so the TypeScript compiler will check those semantic actions for errors.
 
@@ -19,7 +19,7 @@ Tyson provides both a CLI and a Node API.
 ### CLI
 
 ```sh
-npx @kylejlin/tyson -- ./grammar.jison ./src/typedict.ts --out ./src/generated/semanticActions.generated.ts
+npx tyson -- ./grammar.jison ./src/typedict.ts --out ./src/generated/semanticActions.generated.ts
 ```
 
 For more information, please refer to the [CLI docs](./docs/cli.md).
@@ -27,11 +27,11 @@ For more information, please refer to the [CLI docs](./docs/cli.md).
 ### Node API
 
 ```sh
-npm install --save @kylejlin/tyson
+npm install --save tyson
 ```
 
 ```ts
-import { generateTypeScriptFile } from "@kylejlin/tyson";
+import { generateTypeScriptFile } from "tyson";
 
 generateTypeScriptFile({
     pathToBnfGrammarFile: /* ... */,

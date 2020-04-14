@@ -7,7 +7,7 @@ You have three choices:
 1. Use in package.json script (RECOMMENDED):
 
    ```sh
-   npm install --save-dev @kylejlin/tyson
+   npm install --save-dev tyson
    ```
 
    `package.json`:
@@ -23,13 +23,13 @@ You have three choices:
 2. Use npx:
 
    ```sh
-   npx @kylejlin/tyson -- ./myGrammar.jison ./src/typeDict.ts --out ./src/generated/semanticActions.generated.ts
+   npx tyson -- ./myGrammar.jison ./src/typeDict.ts --out ./src/generated/semanticActions.generated.ts
    ```
 
 3. Install globally:
 
    ```sh
-   npm install -g @kylejlin/tyson
+   npm install -g tyson
 
    tyson ./myGrammar.jison ./src/typeDict.ts --out ./src/generated/semanticActions.generated.ts
    ```
