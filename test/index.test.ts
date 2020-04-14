@@ -3,6 +3,7 @@ import path from "path";
 import rimraf from "rimraf";
 import { generateTypeScriptFile } from "../src/";
 import { getErrorDiagnostics } from "./util/compiler";
+import { normalizeTysonPathsInErrorMessage } from "./util/deviceAgnosticPathNormalization";
 
 beforeAll(() => {
   rimraf.sync(path.join(__dirname, "./tempIndexTest"));
@@ -62,7 +63,12 @@ test("failure cases", () => {
         pathToOutputFile,
       });
     } catch (e) {
-      expect(e).toMatchSnapshot("error for " + dir);
+      if (!(e instanceof Error)) {
+        throw e;
+      }
+
+      const deviceAgnosticError = normalizeTysonPathsInErrorMessage(e);
+      expect(deviceAgnosticError).toMatchSnapshot("error for " + dir);
     }
 
     if (fs.existsSync(pathToOutputFile)) {
