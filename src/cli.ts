@@ -42,18 +42,18 @@ type InvalidTysonConfigError =
   | InvalidFileError
   | WrongTypeOfFileError
   | DuplicateGrammarFileDefsError
-  | DuplicateTypeDictionaryFileDefsError
+  | DuplicateTypeDictFileDefsError
   | DuplicateOutputFileDefsError
-  | DuplicateTypeDictionaryInterfaceDefsError
+  | DuplicateTypeDictInterfaceDefsError
   | MissingRequiredArgsError;
 
 enum InvalidTysonConfigErrorType {
   InvalidFile,
   WrongTypeOfFile,
   DuplicateGrammarFileDefs,
-  DuplicateTypeDictionaryFileDefs,
+  DuplicateTypeDictFileDefs,
   DuplicateOutputFileDefs,
-  DuplicateTypeDictionaryInterfaceDefs,
+  DuplicateTypeDictInterfaceDefs,
   MissingRequiredArgs,
 }
 
@@ -76,8 +76,8 @@ interface DuplicateGrammarFileDefsError {
   paths: [string, string];
 }
 
-interface DuplicateTypeDictionaryFileDefsError {
-  errorType: InvalidTysonConfigErrorType.DuplicateTypeDictionaryFileDefs;
+interface DuplicateTypeDictFileDefsError {
+  errorType: InvalidTysonConfigErrorType.DuplicateTypeDictFileDefs;
 
   paths: [string, string];
 }
@@ -88,8 +88,8 @@ interface DuplicateOutputFileDefsError {
   paths: [string, string];
 }
 
-interface DuplicateTypeDictionaryInterfaceDefsError {
-  errorType: InvalidTysonConfigErrorType.DuplicateTypeDictionaryInterfaceDefs;
+interface DuplicateTypeDictInterfaceDefsError {
+  errorType: InvalidTysonConfigErrorType.DuplicateTypeDictInterfaceDefs;
 
   interfaceNames: [string, string];
 }
@@ -155,12 +155,12 @@ function getConfig(
   args: string[]
 ): Result<TysonConfig, InvalidTysonConfigError> {
   enum AcceptMode {
-    JisonAndTypeDictionary,
+    JisonAndTypeDict,
     OutputFile,
-    TypeDictionaryInterfaceName,
+    TypeDictInterfaceName,
   }
 
-  let mode = AcceptMode.JisonAndTypeDictionary;
+  let mode = AcceptMode.JisonAndTypeDict;
 
   let pathToBnfGrammarFile: string | undefined = undefined;
   let pathToTypeDictFile: string | undefined = undefined;
@@ -169,7 +169,7 @@ function getConfig(
 
   for (const arg of args) {
     if (arg === "--in") {
-      mode = AcceptMode.JisonAndTypeDictionary;
+      mode = AcceptMode.JisonAndTypeDict;
       continue;
     }
 
@@ -178,12 +178,12 @@ function getConfig(
       continue;
     }
 
-    if (arg === "--type-dictionary-interface" || arg === "-t") {
-      mode = AcceptMode.TypeDictionaryInterfaceName;
+    if (arg === "--type-dict-interface" || arg === "-t") {
+      mode = AcceptMode.TypeDictInterfaceName;
       continue;
     }
 
-    if (mode === AcceptMode.JisonAndTypeDictionary) {
+    if (mode === AcceptMode.JisonAndTypeDict) {
       if (/\.jison$/.test(arg)) {
         if (!isValidFile(arg)) {
           return result.err({
@@ -213,8 +213,7 @@ function getConfig(
 
         if (pathToTypeDictFile !== undefined) {
           return result.err({
-            errorType:
-              InvalidTysonConfigErrorType.DuplicateTypeDictionaryFileDefs,
+            errorType: InvalidTysonConfigErrorType.DuplicateTypeDictFileDefs,
             paths: [pathToTypeDictFile, arg],
           });
         }
@@ -250,11 +249,10 @@ function getConfig(
       });
     }
 
-    if (mode === AcceptMode.TypeDictionaryInterfaceName) {
+    if (mode === AcceptMode.TypeDictInterfaceName) {
       if (typeDictInterfaceName !== undefined) {
         return result.err({
-          errorType:
-            InvalidTysonConfigErrorType.DuplicateTypeDictionaryInterfaceDefs,
+          errorType: InvalidTysonConfigErrorType.DuplicateTypeDictInterfaceDefs,
           interfaceNames: [typeDictInterfaceName, arg],
         });
       }
@@ -327,14 +325,14 @@ function handleInvalidCommand(command: InvalidCommand): void {
     case InvalidTysonConfigErrorType.DuplicateGrammarFileDefs:
       handleDuplicateGrammarFileDefsError(error);
       break;
-    case InvalidTysonConfigErrorType.DuplicateTypeDictionaryFileDefs:
-      handleDuplicateTypeDictionaryFileDefsError(error);
+    case InvalidTysonConfigErrorType.DuplicateTypeDictFileDefs:
+      handleDuplicateTypeDictFileDefsError(error);
       break;
     case InvalidTysonConfigErrorType.DuplicateOutputFileDefs:
       handleDuplicateOutputFileDefsError(error);
       break;
-    case InvalidTysonConfigErrorType.DuplicateTypeDictionaryInterfaceDefs:
-      handleDuplicateTypeDictionaryInterfaceDefsError(error);
+    case InvalidTysonConfigErrorType.DuplicateTypeDictInterfaceDefs:
+      handleDuplicateTypeDictInterfaceDefsError(error);
       break;
     case InvalidTysonConfigErrorType.MissingRequiredArgs:
       handleMissingRequiredArgsError(error);
@@ -370,8 +368,8 @@ function handleDuplicateGrammarFileDefsError(
   );
 }
 
-function handleDuplicateTypeDictionaryFileDefsError(
-  error: DuplicateTypeDictionaryFileDefsError
+function handleDuplicateTypeDictFileDefsError(
+  error: DuplicateTypeDictFileDefsError
 ): void {
   console.log(
     'Duplicate type dictionary file definitions:\n    First:  "' +
@@ -394,8 +392,8 @@ function handleDuplicateOutputFileDefsError(
   );
 }
 
-function handleDuplicateTypeDictionaryInterfaceDefsError(
-  error: DuplicateTypeDictionaryInterfaceDefsError
+function handleDuplicateTypeDictInterfaceDefsError(
+  error: DuplicateTypeDictInterfaceDefsError
 ): void {
   console.log(
     'Duplicate type dictionary interface definitions:\n    First:  "' +
