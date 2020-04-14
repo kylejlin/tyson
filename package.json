@@ -1,6 +1,6 @@
 {
   "name": "@kylejlin/tyson",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A tool that generates a TypeScript file from your Jison grammar's semantic actions so you can typecheck those semantic actions.",
   "main": "dist/index.js",
   "bin": {

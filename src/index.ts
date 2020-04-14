@@ -219,6 +219,7 @@ function getParenthesizedArgs(
     possibleYylstackArgDefWithComma +
     rule
       .split(/\s+/g)
+      .filter((arg) => arg != "")
       .map(
         (arg, i) =>
           "$" +
