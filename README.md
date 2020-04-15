@@ -42,6 +42,13 @@ generateTypeScriptFile({
 
 For more information, please refer to the [Node API docs](./docs/nodeApi.md).
 
+## Docs
+
+All documentation is located in the [docs directory](./docs).
+
+We recommend that you start by reading the [General docs](./docs/general.md).
+After that, if you want additional information about the CLI or Node API, you can refer to the [CLI docs](./docs/cli.md) or [Node API docs](./docs/nodeApi.md), respectively.
+
 ## License
 
 MIT
