@@ -31,7 +31,7 @@ test("success cases", () => {
     );
     const pathToOutputFile = path.join(
       __dirname,
-      "tempIndexTest/noTypeErrors",
+      "tempCliTest/noTypeErrors",
       dir + ".generated.ts"
     );
     const pathToConfigFile = path.join(
@@ -76,7 +76,7 @@ test("failure cases", () => {
     );
     const pathToOutputFile = path.join(
       __dirname,
-      "tempIndexTest/typeErrors",
+      "tempCliTest/typeErrors",
       dir + ".generated.ts"
     );
     const pathToConfigFile = path.join(
