@@ -48,7 +48,7 @@ e
     | e '^' e
         {$$ = Math.pow($1, $3);}
     | '-' e %prec UMINUS
-    // Error: only two symbols but references `$3`
+        // Error: only two symbols but references `$3`
         {$$ = -$3;}
     | '(' e ')'
         {$$ = $2;}

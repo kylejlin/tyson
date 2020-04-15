@@ -174,7 +174,7 @@ function generateSemanticActionCode(
       const { rule, action } = normalizeRuleActionPair(ruleActionPair);
       const methodDeclaration =
         JSON.stringify(symbolName + " -> " + rule) +
-        getParenthesizedArgs(rule, action, typeDictInterfaceName) +
+        getParenthesizedParams(rule, action, typeDictInterfaceName) +
         getReturnAnnotation(symbolName, typeDictInterfaceName) +
         "{" +
         get$$Declaration(symbolName, typeDictInterfaceName) +
@@ -205,15 +205,16 @@ function normalizeRuleActionPair(
   }
 }
 
-function getParenthesizedArgs(
+function getParenthesizedParams(
   rule: string,
   action: string,
   typeDictInterfaceName: string
 ): string {
-  const actionReferencesTokenLocation = /@(\$|-?\d+\b)/g.test(action);
-  const possibleYylstackArgDefWithComma = actionReferencesTokenLocation
-    ? "yylstack: " + getYylstackType(rule) + ",\n\n"
-    : "";
+  const tokenLocationReferences = action.match(/@(\$|-?\d+\b)/g);
+  const possibleYylstackArgDefWithComma =
+    tokenLocationReferences !== null
+      ? "yylstack: " + getYylstackType(rule, tokenLocationReferences) + ",\n\n"
+      : "";
   return (
     "(" +
     possibleYylstackArgDefWithComma +
@@ -235,11 +236,15 @@ function getParenthesizedArgs(
   );
 }
 
-function getYylstackType(rule: string): string {
+function getYylstackType(
+  rule: string,
+  tokenLocationReferences: string[]
+): string {
   return (
     "{" +
     ["@$"]
       .concat(rule.split(/\s+/g).map((_arg, i) => "@" + (i + 1)))
+      .filter((ref) => tokenLocationReferences.indexOf(ref) > -1)
       .map((key) => JSON.stringify(key) + ": TokenLocation")
       .join(", ") +
     "}"

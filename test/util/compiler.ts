@@ -1,5 +1,10 @@
 import * as ts from "typescript";
 import path from "path";
+import fs from "fs";
+
+const tsConfig = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../../tsconfig.json"), "utf8")
+);
 
 export function getErrorDiagnostics(
   fileNames: string[]
@@ -17,7 +22,7 @@ function getPreEmitDiagnostics(fileNames: string[]): readonly ts.Diagnostic[] {
 
 function getTsConfigCompilerOptions(): ts.CompilerOptions {
   return ts.convertCompilerOptionsFromJson(
-    undefined,
+    tsConfig.compilerOptions,
     path.join(__dirname, "../../")
   ).options;
 }
