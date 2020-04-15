@@ -84,8 +84,8 @@ function generateImportStatementCode(
 
   return (
     "import { " +
-    (dependencies.yy ? "yy, " : "") +
     getTypeDictInterfaceName(config) +
+    (dependencies.yy ? ", yy" : "") +
     " } from " +
     JSON.stringify(withLeadingDotSlash) +
     ";"
