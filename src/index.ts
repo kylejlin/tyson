@@ -235,6 +235,7 @@ function getParenthesizedParams(
   typeDictInterfaceName: string
 ): string {
   const tokenLocationReferences = action.match(/@(\$|-?\d+\b)/g);
+  const productionRhsSemanticValueReferences = action.match(/\$\d+\b/g) || [];
   const possibleYylstackArgDefWithComma =
     tokenLocationReferences !== null
       ? "yylstack: " + getYylstackType(rule, tokenLocationReferences) + ",\n\n"
@@ -245,16 +246,14 @@ function getParenthesizedParams(
     rule
       .split(/\s+/g)
       .filter((arg) => arg != "")
-      .map(
-        (arg, i) =>
-          "$" +
-          (i + 1) +
-          ": " +
-          typeDictInterfaceName +
-          "[" +
-          JSON.stringify(arg) +
-          "]"
+      .map((arg, i) => [
+        "$" + (i + 1),
+        typeDictInterfaceName + "[" + JSON.stringify(arg) + "]",
+      ])
+      .filter(([argName]) =>
+        productionRhsSemanticValueReferences.includes(argName)
       )
+      .map(([argName, argType]) => argName + ": " + argType)
       .join(", ") +
     ")"
   );
@@ -268,7 +267,7 @@ function getYylstackType(
     "{" +
     ["@$"]
       .concat(rule.split(/\s+/g).map((_arg, i) => "@" + (i + 1)))
-      .filter((ref) => tokenLocationReferences.indexOf(ref) > -1)
+      .filter((ref) => tokenLocationReferences.includes(ref))
       .map((key) => JSON.stringify(key) + ": TokenLocation")
       .join(", ") +
     "}"
