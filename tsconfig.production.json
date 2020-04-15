@@ -1,17 +1,6 @@
 {
+  "extends": "./tsconfig",
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["esnext"],
-    "downlevelIteration": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "allowJs": true,
-    "outDir": "dist",
-    "declaration": true
-  },
-  "include": ["src"]
+    "allowJs": true
+  }
 }

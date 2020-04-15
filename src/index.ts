@@ -32,19 +32,49 @@ export interface TysonConfig {
    * @default "TysonTypeDictionary"
    */
   typeDictInterfaceName?: string;
+
+  /**
+   * If this is set to `true`, `yylstack` will have a location field for
+   * each symbol in the production RHS, regardless of whether that symbol's
+   * location is used by the semantic action or not.
+   *
+   * @default false
+   */
+  emitUnusedLocations?: boolean;
+
+  /**
+   * If this is set to `true`, a semantic value parameter will be emitted
+   * for each symbol in a production's RHS, regardless of whether the
+   * semantic action uses it or not.
+   *
+   * @default false
+   */
+  emitUnusedSemanticValueParams?: boolean;
 }
 
-const DEFAULT_TYPE_DICT_INTERFACE_NAME = "TysonTypeDictionary";
+interface CompleteTysonConfig extends TysonConfig {
+  typeDictInterfaceName: string;
+  emitUnusedLocations: boolean;
+  emitUnusedSemanticValueParams: boolean;
+}
+
+const DEFAULTS = {
+  typeDictInterfaceName: "TysonTypeDictionary",
+  emitUnusedLocations: false,
+  emitUnusedSemanticValueParams: false,
+};
 
 export function generateTypeScriptFile(config: TysonConfig): void {
-  const { pathToBnfGrammarFile, pathToOutputFile } = config;
+  const completeConfig = applyDefaultsAsNeeded(config);
+
+  const { pathToBnfGrammarFile, pathToOutputFile } = completeConfig;
   const grammarSource = fs.readFileSync(pathToBnfGrammarFile, "utf8");
   const parsedGrammar = bnfParser.parse(grammarSource);
 
-  const generatedCode = generateCode(config, parsedGrammar);
+  const generatedCode = generateCode(completeConfig, parsedGrammar);
 
   const prettierConfig =
-    prettier.resolveConfig.sync(config.pathToOutputFile) || {};
+    prettier.resolveConfig.sync(completeConfig.pathToOutputFile) || {};
 
   fs.writeFileSync(
     pathToOutputFile,
@@ -55,7 +85,32 @@ export function generateTypeScriptFile(config: TysonConfig): void {
   );
 }
 
-function generateCode(config: TysonConfig, grammar: ParsedBnfGrammar): string {
+function applyDefaultsAsNeeded(config: TysonConfig): CompleteTysonConfig {
+  const typeDictInterfaceName =
+    config.typeDictInterfaceName !== undefined
+      ? config.typeDictInterfaceName
+      : DEFAULTS.typeDictInterfaceName;
+  const emitUnusedLocations =
+    config.emitUnusedLocations !== undefined
+      ? config.emitUnusedLocations
+      : DEFAULTS.emitUnusedLocations;
+  const emitUnusedSemanticValueParams =
+    config.emitUnusedSemanticValueParams !== undefined
+      ? config.emitUnusedSemanticValueParams
+      : DEFAULTS.emitUnusedSemanticValueParams;
+
+  return {
+    ...config,
+    typeDictInterfaceName,
+    emitUnusedLocations,
+    emitUnusedSemanticValueParams,
+  };
+}
+
+function generateCode(
+  config: CompleteTysonConfig,
+  grammar: ParsedBnfGrammar
+): string {
   const { start } = grammar;
 
   if (start === undefined) {
@@ -78,7 +133,7 @@ function generateCode(config: TysonConfig, grammar: ParsedBnfGrammar): string {
       ...grammar,
       start,
     },
-    getTypeDictInterfaceName(config)
+    config
   );
 
   return (
@@ -93,7 +148,7 @@ function generateCode(config: TysonConfig, grammar: ParsedBnfGrammar): string {
 }
 
 function generateImportStatementCode(
-  config: TysonConfig,
+  config: CompleteTysonConfig,
   dependencies: ActionDependencies
 ): string {
   const relativePath = path.relative(
@@ -108,20 +163,12 @@ function generateImportStatementCode(
 
   return (
     "import { " +
-    getTypeDictInterfaceName(config) +
+    config.typeDictInterfaceName +
     (dependencies.yy ? ", yy" : "") +
     " } from " +
     JSON.stringify(withLeadingDotSlash) +
     ";"
   );
-}
-
-function getTypeDictInterfaceName(config: TysonConfig): string {
-  if (config.typeDictInterfaceName === undefined) {
-    return DEFAULT_TYPE_DICT_INTERFACE_NAME;
-  }
-
-  return config.typeDictInterfaceName;
 }
 
 function generateYyDeclarations(dependencies: ActionDependencies): string {
@@ -187,7 +234,7 @@ interface ParsedBnfGrammarWithStartSymbol extends ParsedBnfGrammar {
 
 function generateSemanticActionCode(
   grammar: ParsedBnfGrammarWithStartSymbol,
-  typeDictInterfaceName: string
+  config: CompleteTysonConfig
 ): string {
   const { start: startSymbol, bnf } = grammar;
 
@@ -198,10 +245,10 @@ function generateSemanticActionCode(
       const { rule, action } = normalizeRuleActionPair(ruleActionPair);
       const methodDeclaration =
         JSON.stringify(symbolName + " -> " + rule) +
-        getParenthesizedParams(rule, action, typeDictInterfaceName) +
-        getReturnAnnotation(symbolName, typeDictInterfaceName) +
+        generateParenthesizedParamDefs(rule, action, config) +
+        generateReturnAnnotation(symbolName, config.typeDictInterfaceName) +
         "{" +
-        get$$Declaration(symbolName, typeDictInterfaceName) +
+        generate$$Declaration(symbolName, config.typeDictInterfaceName) +
         action.replace(/@(\$|-?\d+\b)/g, 'yylstack["@$1"]') +
         (symbolName === startSymbol ? "}," : "\nreturn $$;},");
       code += methodDeclaration + "\n\n";
@@ -229,63 +276,111 @@ function normalizeRuleActionPair(
   }
 }
 
-function getParenthesizedParams(
-  rule: string,
+function generateParenthesizedParamDefs(
+  rhs: string,
   action: string,
-  typeDictInterfaceName: string
+  config: CompleteTysonConfig
 ): string {
-  const tokenLocationReferences = action.match(/@(\$|-?\d+\b)/g);
-  const productionRhsSemanticValueReferences = action.match(/\$\d+\b/g) || [];
-  const possibleYylstackArgDefWithComma =
-    tokenLocationReferences !== null
-      ? "yylstack: " + getYylstackType(rule, tokenLocationReferences) + ",\n\n"
-      : "";
+  const possibleYylstackParamDef = generateYylstackParamDefIfNeeded(
+    rhs,
+    action,
+    config
+  );
+  const possibleYylstackArgDefWithCommaAndNewlinesIfNeeded =
+    possibleYylstackParamDef === "" ? "" : possibleYylstackParamDef + ",\n\n";
+
+  const semanticValueParamDefs = generateSemanticValueParamDefs(
+    rhs,
+    action,
+    config
+  );
+
   return (
     "(" +
-    possibleYylstackArgDefWithComma +
-    rule
-      .split(/\s+/g)
-      .filter((arg) => arg != "")
-      .map((arg, i) => [
-        "$" + (i + 1),
-        typeDictInterfaceName + "[" + JSON.stringify(arg) + "]",
-      ])
-      .filter(([argName]) =>
-        productionRhsSemanticValueReferences.includes(argName)
-      )
-      .map(([argName, argType]) => argName + ": " + argType)
-      .join(", ") +
+    possibleYylstackArgDefWithCommaAndNewlinesIfNeeded +
+    semanticValueParamDefs +
     ")"
   );
 }
 
-function getYylstackType(
-  rule: string,
-  tokenLocationReferences: string[]
+function generateYylstackParamDefIfNeeded(
+  rhs: string,
+  action: string,
+  config: CompleteTysonConfig
 ): string {
+  const referencedLocations = action.match(/@(\$|-?\d+\b)/g);
+
+  if (referencedLocations === null) {
+    return "";
+  } else {
+    return (
+      "yylstack: " + generateYylstackType(rhs, referencedLocations, config)
+    );
+  }
+}
+
+function generateYylstackType(
+  rule: string,
+  referencedLocations: string[],
+  config: CompleteTysonConfig
+): string {
+  const allLocations = ["@$"].concat(
+    rule
+      .split(/\s+/g)
+      .filter((symbol) => symbol != "")
+      .map((_arg, i) => "@" + (i + 1))
+  );
+  const emittedLocations = config.emitUnusedLocations
+    ? allLocations
+    : allLocations.filter((location) => referencedLocations.includes(location));
   return (
     "{" +
-    ["@$"]
-      .concat(rule.split(/\s+/g).map((_arg, i) => "@" + (i + 1)))
-      .filter((ref) => tokenLocationReferences.includes(ref))
-      .map((key) => JSON.stringify(key) + ": TokenLocation")
-      .join(", ") +
+    emittedLocations.map((key) => '"' + key + '": TokenLocation').join(", ") +
     "}"
   );
 }
 
-function getReturnAnnotation(
+function generateSemanticValueParamDefs(
+  rhs: string,
+  action: string,
+  config: CompleteTysonConfig
+): string {
+  const namesOfReferencedSemanticValueParams = action.match(/\$\d+\b/g) || [];
+  const allParams = rhs
+    .split(/\s+/g)
+    .filter((symbol) => symbol != "")
+    .map((symbol, i) => {
+      return {
+        name: "$" + (i + 1),
+        type: config.typeDictInterfaceName + "[" + JSON.stringify(symbol) + "]",
+      };
+    });
+  const emittedParams = config.emitUnusedSemanticValueParams
+    ? allParams
+    : allParams.filter((param) =>
+        namesOfReferencedSemanticValueParams.includes(param.name)
+      );
+  return emittedParams
+    .map((param) => param.name + ": " + param.type)
+    .join(", ");
+}
+
+function generateReturnAnnotation(
   symbolName: string,
   typeDictInterfaceName: string
 ): string {
   return ": " + typeDictInterfaceName + "[" + JSON.stringify(symbolName) + "]";
 }
 
-function get$$Declaration(
-  symbolName: string,
+function generate$$Declaration(
+  lefthandSymbol: string,
   typeDictInterfaceName: string
 ): string {
   return (
-    "let $$: " + typeDictInterfaceName + "[" + JSON.stringify(symbolName) + "];"
+    "let $$: " +
+    typeDictInterfaceName +
+    "[" +
+    JSON.stringify(lefthandSymbol) +
+    "];"
   );
 }

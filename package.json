@@ -1,6 +1,6 @@
 {
   "name": "tyson",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "A tool that generates a TypeScript file from your Jison grammar's semantic actions so the TypeScript compiler will check those semantic actions for errors.",
   "main": "dist/index.js",
   "bin": {
@@ -47,6 +47,7 @@
     "@types/rimraf": "^3.0.0",
     "coveralls": "^3.0.11",
     "jest": "^24.9.0",
+    "jest-file-snapshot": "^0.3.8",
     "nodemon": "^2.0.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^24.1.0",

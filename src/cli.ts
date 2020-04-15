@@ -166,6 +166,8 @@ function getConfig(
   let pathToTypeDictFile: string | undefined = undefined;
   let pathToOutputFile: string | undefined = undefined;
   let typeDictInterfaceName: string | undefined = undefined;
+  let emitUnusedLocations: true | undefined = undefined;
+  let emitUnusedSemanticValueParams: true | undefined = undefined;
 
   for (const arg of args) {
     if (arg === "--in") {
@@ -180,6 +182,16 @@ function getConfig(
 
     if (arg === "--type-dict-interface" || arg === "-t") {
       mode = AcceptMode.TypeDictInterfaceName;
+      continue;
+    }
+
+    if (arg === "--emit-unused-locations") {
+      emitUnusedLocations = true;
+      continue;
+    }
+
+    if (arg === "--emit-unused-semantic-value-params") {
+      emitUnusedSemanticValueParams = true;
       continue;
     }
 
@@ -272,6 +284,8 @@ function getConfig(
       pathToTypeDictFile,
       pathToOutputFile,
       typeDictInterfaceName,
+      emitUnusedLocations,
+      emitUnusedSemanticValueParams,
     });
   } else {
     return result.err({

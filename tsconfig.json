@@ -12,5 +12,6 @@
     "outDir": "dist",
     "declaration": true
   },
-  "include": ["src", "test"]
+  "include": ["src", "test"],
+  "exclude": ["test/__file_snapshots__"]
 }
