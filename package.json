@@ -1,6 +1,6 @@
 {
   "name": "tyson",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "A tool that generates a TypeScript file from your Jison grammar's semantic actions so the TypeScript compiler will check those semantic actions for errors.",
   "main": "dist/index.js",
   "bin": {
@@ -12,8 +12,8 @@
   ],
   "scripts": {
     "start": "nodemon",
-    "prepublishOnly": "rm -rf dist && npm run build && npm test",
-    "build": "rm -rf test/tempIndexTest test/tempCliTest && ts-node ./bin/generatePackageVersionFile.ts && tsc --project tsconfig.production.json",
+    "prepublishOnly": "npm run build && npm test",
+    "build": "rm -rf dist test/tempIndexTest test/tempCliTest && ts-node ./bin/generatePackageVersionFile.ts && tsc --project tsconfig.production.json",
     "test": "jest",
     "doc": "typedoc --out docs src && cd docs && echo \"\" > .nojekyll",
     "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls"
