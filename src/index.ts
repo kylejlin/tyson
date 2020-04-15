@@ -4,9 +4,33 @@ import prettier from "prettier";
 import bnfParser, { ParsedBnfGrammar } from "./lib/bnf-parser";
 
 export interface TysonConfig {
+  /**
+   * A path to the .jison file you want Tyson to use.
+   */
   pathToBnfGrammarFile: string;
+
+  /**
+   * A path to a TypeScript file exporting the type dictionary interface you want Tyson to use.
+   */
   pathToTypeDictFile: string;
+
+  /**
+   * A path pointing to where you want Tyson to emit the generated TypeScript file.
+   *
+   * The file does not need to already exist, but the containing directory does
+   * (e.g., if you want to pass ./src/generated/semanticActions.generated.ts,
+   * then the directory ./src/generated/ must exist prior to running tyson).
+   */
   pathToOutputFile: string;
+
+  /**
+   * The name of the type dictionary interface the generated file
+   * should import from your type dictionary file.
+   *
+   * If this field is omitted, it will default to `"TysonTypeDictionary"`.
+   *
+   * @default "TysonTypeDictionary"
+   */
   typeDictInterfaceName?: string;
 }
 
