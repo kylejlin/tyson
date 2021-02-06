@@ -3,6 +3,9 @@ export interface BnfParser {
 }
 
 export interface ParsedBnfGrammar {
+
+  moduleInclude?: string;
+
   lex?: {
     rules: [string, string][];
   };

@@ -141,6 +141,8 @@ function generateCode(
     "\n\n" +
     yyDeclarations +
     "\n\n" +
+    (grammar.moduleInclude || '') +
+    "\n\n" +
     locationInterfaceDeclaration +
     "\n\n" +
     semanticActions
